@@ -3,7 +3,11 @@
 VALUE mCurl;
 
 void Init_curl() {
- mCurl = rb_define_module("Curl");
+	mCurl = rb_define_module("Curl");
 
- init_easy();
+	RUBY_CURL_DEF_CONST(CURLOPT_URL);
+	RUBY_CURL_DEF_CONST(CURLOPT_POST);
+	RUBY_CURL_DEF_CONST(CURLOPT_TIMEOUT);
+
+	init_easy();
 }
