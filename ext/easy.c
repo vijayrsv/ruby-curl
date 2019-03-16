@@ -61,6 +61,16 @@ static VALUE ruby_curl_easy_set_opt(VALUE self, VALUE opt, VALUE val) {
 			break;
 		case CURLOPT_PUT:
 			curl_easy_setopt(rb_curl->cp, CURLOPT_PUT, NUM2LONG(val));
+			break;
+		case CURLOPT_HTTPGET:
+			curl_easy_setopt(rb_curl->cp, CURLOPT_HTTPGET, NUM2LONG(val));
+			break;
+		case CURLOPT_UPLOAD:
+			curl_easy_setopt(rb_curl->cp, CURLOPT_UPLOAD, NUM2LONG(val));
+			break;
+		case CURLOPT_VERBOSE:
+			curl_easy_setopt(rb_curl->cp, CURLOPT_VERBOSE, NUM2LONG(val));
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
