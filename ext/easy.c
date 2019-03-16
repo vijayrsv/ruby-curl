@@ -59,6 +59,8 @@ static VALUE ruby_curl_easy_set_opt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_TIMEOUT:
 			curl_easy_setopt(rb_curl->cp, CURLOPT_TIMEOUT, NUM2LONG(val));
 			break;
+		case CURLOPT_PUT:
+			curl_easy_setopt(rb_curl->cp, CURLOPT_PUT, NUM2LONG(val));
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
