@@ -1,13 +1,16 @@
 #include "curl.h"
 
-VALUE mCurl;
+VALUE rb_mCurl;
 
 void Init_curl() {
-	mCurl = rb_define_module("Curl");
+	VALUE rb_mOption;
 
-	RUBY_CURL_DEF_CONST(CURLOPT_URL);
-	RUBY_CURL_DEF_CONST(CURLOPT_POST);
-	RUBY_CURL_DEF_CONST(CURLOPT_TIMEOUT);
+	rb_mCurl   = rb_define_module("Curl");
+	rb_mOption = rb_define_module_under(rb_mCurl, "Option");
 
-	init_easy();
+	RB_DEFINE_M_OPT_CONST("URL", CURLOPT_URL);
+	RB_DEFINE_M_OPT_CONST("POST", CURLOPT_POST);
+	RB_DEFINE_M_OPT_CONST("TIMEOUT", CURLOPT_TIMEOUT);
+
+	Init_easy();
 }

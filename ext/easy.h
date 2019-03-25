@@ -1,15 +1,16 @@
 #ifndef RUBY_CURL_EASY_H
 #define RUBY_CURL_EASY_H
 
-#include "curl.h"
+#include <ruby.h>
+#include <curl/curl.h>
 #include <curl/easy.h>
 
 typedef struct {
 	CURL *cp;
-} ruby_curl;
+} rb_curl;
 
-extern VALUE cCurlEasy;
+extern VALUE rb_cEasy;
 
-extern void init_easy();
+extern void Init_easy();
 
 #endif
