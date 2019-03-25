@@ -43,7 +43,7 @@ static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
   return self;
 }
 
-static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
+static VALUE rb_curl_easy_set_opt(VALUE self, VALUE opt, VALUE val) {
 	rb_curl *ch;
 	long option = NUM2LONG(opt);
 
@@ -84,7 +84,7 @@ void Init_easy() {
 	rb_cEasy = rb_define_class_under(rb_mCurl, "Easy", rb_cObject);
 	rb_define_alloc_func(rb_cEasy, rb_curl_allocate);
   rb_define_method(rb_cEasy, "initialize", rb_curl_easy_initialize, -1);
-  rb_define_method(rb_cEasy, "setopt", rb_curl_easy_setopt, 2);
+  rb_define_method(rb_cEasy, "set_opt", rb_curl_easy_set_opt, 2);
   rb_define_method(rb_cEasy, "exec", rb_curl_easy_exec, 0);
   rb_define_method(rb_cEasy, "close", rb_curl_easy_close, 0);
 }
