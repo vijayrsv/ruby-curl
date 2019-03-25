@@ -1,8 +1,6 @@
 #include "easy.h"
-#include <curl/curl.h>
-#include <curl/easy.h>
 
-extern VALUE rb_curl_module;
+extern VALUE rb_mCurl;
 
 VALUE rb_cEasy;
 

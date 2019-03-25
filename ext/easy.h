@@ -1,7 +1,8 @@
 #ifndef RUBY_CURL_EASY_H
 #define RUBY_CURL_EASY_H
 
-#include "curl.h"
+#include <ruby.h>
+#include <curl/curl.h>
 #include <curl/easy.h>
 
 typedef struct {

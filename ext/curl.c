@@ -1,5 +1,4 @@
 #include "curl.h"
-#include "easy.h"
 
 VALUE rb_mCurl;
 
