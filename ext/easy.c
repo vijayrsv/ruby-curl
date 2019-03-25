@@ -81,8 +81,8 @@ static VALUE rb_curl_easy_close(VALUE self) {
 void Init_easy() {
 	rb_cEasy = rb_define_class_under(rb_mCurl, "Easy", rb_cObject);
 	rb_define_alloc_func(rb_cEasy, rb_curl_allocate);
-  rb_define_method(rb_cEasy, "initialize", rb_curl_easy_initialize, -1);
-  rb_define_method(rb_cEasy, "set_opt", rb_curl_easy_set_opt, 2);
-  rb_define_method(rb_cEasy, "exec", rb_curl_easy_exec, 0);
-  rb_define_method(rb_cEasy, "close", rb_curl_easy_close, 0);
+	rb_define_method(rb_cEasy, "initialize", rb_curl_easy_initialize, -1);
+	rb_define_method(rb_cEasy, "set_opt", rb_curl_easy_set_opt, 2);
+	rb_define_method(rb_cEasy, "exec", rb_curl_easy_exec, 0);
+	rb_define_method(rb_cEasy, "close", rb_curl_easy_close, 0);
 }
