@@ -2,9 +2,9 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-extern VALUE mCurl;
+extern VALUE rb_curl_module;
 
-VALUE cCurlEasy;
+VALUE rb_curl_easy_class;
 
 void ruby_curl_mark(ruby_curl *rb_curl) {
 }
@@ -81,10 +81,10 @@ static VALUE ruby_curl_easy_close(VALUE self) {
 }
 
 void init_easy() {
-	cCurlEasy = rb_define_class_under(mCurl, "Easy", rb_cObject);
-	rb_define_alloc_func(cCurlEasy, ruby_curl_allocate);
-  rb_define_method(cCurlEasy, "initialize", ruby_curl_easy_initialize, -1);
-  rb_define_method(cCurlEasy, "set_opt", ruby_curl_easy_set_opt, 2);
-  rb_define_method(cCurlEasy, "exec", ruby_curl_easy_exec, 0);
-  rb_define_method(cCurlEasy, "close", ruby_curl_easy_close, 0);
+	rb_curl_easy_class = rb_define_class_under(rb_curl_module, "Easy", rb_cObject);
+	rb_define_alloc_func(rb_curl_easy_class, ruby_curl_allocate);
+  rb_define_method(rb_curl_easy_class, "initialize", ruby_curl_easy_initialize, -1);
+  rb_define_method(rb_curl_easy_class, "set_opt", ruby_curl_easy_set_opt, 2);
+  rb_define_method(rb_curl_easy_class, "exec", ruby_curl_easy_exec, 0);
+  rb_define_method(rb_curl_easy_class, "close", ruby_curl_easy_close, 0);
 }

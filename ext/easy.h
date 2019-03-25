@@ -8,7 +8,7 @@ typedef struct {
 	CURL *cp;
 } ruby_curl;
 
-extern VALUE cCurlEasy;
+extern VALUE rb_curl_easy_class;
 
 extern void init_easy();
 
