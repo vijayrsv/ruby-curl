@@ -6,10 +6,10 @@
 
 typedef struct {
 	CURL *cp;
-} ruby_curl;
+} rb_curl;
 
-extern VALUE rb_curl_easy_class;
+extern VALUE rb_cEasy;
 
-extern void init_easy();
+extern void Init_easy();
 
 #endif

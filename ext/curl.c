@@ -1,17 +1,17 @@
 #include "curl.h"
+#include "easy.h"
 
-VALUE rb_curl_module;
+VALUE rb_mCurl;
 
 void Init_curl() {
-	VALUE rb_curl_option_module;
+	VALUE rb_mOption;
 
-	rb_curl_module = rb_define_module("Curl");
+	rb_mCurl   = rb_define_module("Curl");
+	rb_mOption = rb_define_module_under(rb_mCurl, "Option");
 
-	rb_curl_option_module = rb_define_module_under(rb_curl_module, "Option");
+	RB_DEFINE_M_OPT_CONST("URL", CURLOPT_URL);
+	RB_DEFINE_M_OPT_CONST("POST", CURLOPT_POST);
+	RB_DEFINE_M_OPT_CONST("TIMEOUT", CURLOPT_TIMEOUT);
 
-	RB_CURL_OPT_DEF_CONST("URL", CURLOPT_URL);
-	RB_CURL_OPT_DEF_CONST("POST", CURLOPT_POST);
-	RB_CURL_OPT_DEF_CONST("TIMEOUT", CURLOPT_TIMEOUT);
-
-	init_easy();
+	Init_easy();
 }
