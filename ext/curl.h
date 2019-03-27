@@ -6,10 +6,11 @@
 
 #include "easy.h"
 
-#define RUBY_CURL_DEF_CONST(name) \
-	rb_define_const(mCurl, #name, LONG2NUM(name))
+#define RB_DEFINE_M_OPT_CONST(name, curl_opt_name) \
+	rb_define_const(rb_mOption, name, LONG2NUM(curl_opt_name))
 
-extern VALUE mCurl;
+extern VALUE rb_mCurl;
 
-extern void Init_curl();
+void Init_curl();
+
 #endif
