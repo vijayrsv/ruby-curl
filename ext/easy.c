@@ -106,8 +106,17 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
 	switch (information) {
+		case CURLINFO_EFFECTIVE_URL:
+				if (curl_easy_getinfo(rb_ch->ch, CURLINFO_EFFECTIVE_URL, &s_var) == CURLE_OK) {
+					ret_val = rb_str_new2(s_var);
+				}
 		case CURLINFO_RESPONSE_CODE:
 				if (curl_easy_getinfo(rb_ch->ch, CURLINFO_RESPONSE_CODE, &l_var) == CURLE_OK) {
+					ret_val = INT2FIX(l_var);
+				}
+			break;
+		case CURLINFO_HTTP_VERSION:
+				if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HTTP_VERSION, &l_var) == CURLE_OK) {
 					ret_val = INT2FIX(l_var);
 				}
 			break;
