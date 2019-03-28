@@ -94,6 +94,30 @@ static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
   return self;
 }
 
+static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
+	rb_curl_easy *rb_ch;
+	VALUE ret_val = Qnil;
+	long information = NUM2LONG(info);
+
+	char *s_var;
+	long l_var;
+	double d_var;
+
+	Data_Get_Struct(self, rb_curl_easy, rb_ch);
+
+	switch (information) {
+		case CURLINFO_RESPONSE_CODE:
+				if (curl_easy_getinfo(rb_ch->ch, CURLINFO_RESPONSE_CODE, &l_var) == CURLE_OK) {
+					ret_val = INT2FIX(l_var);
+				}
+			break;
+		default:
+			rb_raise(rb_eTypeError, "Unsupported information.");
+	}
+	return ret_val;
+}
+
+
 static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 	rb_curl_easy *rb_ch;
 	long option = NUM2LONG(opt);
@@ -127,7 +151,7 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
 			break;
 		case CURLOPT_READFUNCTION:
-			rb_ch->rb_curl_easy_read_header_proc = val;
+			rb_ch->rb_curl_easy_read_proc = val;
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
 			break;
@@ -140,6 +164,7 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 
 static VALUE rb_curl_easy_perform(VALUE self) {
   rb_curl_easy *rb_ch;
+
   Data_Get_Struct(self, rb_curl_easy, rb_ch);
 	curl_easy_perform(rb_ch->ch);
   return self;
@@ -147,6 +172,7 @@ static VALUE rb_curl_easy_perform(VALUE self) {
 
 static VALUE rb_curl_easy_cleanup(VALUE self) {
   rb_curl_easy *rb_ch;
+
   Data_Get_Struct(self, rb_curl_easy, rb_ch);
 	curl_easy_cleanup(rb_ch->ch);
   return self;
@@ -159,6 +185,7 @@ void Init_easy() {
 	rb_define_alloc_func(rb_cEasy, rb_curl_allocate);
 	rb_define_method(rb_cEasy, "initialize", rb_curl_easy_initialize, -1);
 	rb_define_method(rb_cEasy, "setopt", rb_curl_easy_setopt, 2);
+	rb_define_method(rb_cEasy, "getinfo", rb_curl_easy_getinfo, 1);
 	rb_define_method(rb_cEasy, "perform", rb_curl_easy_perform, 0);
 	rb_define_method(rb_cEasy, "cleanup", rb_curl_easy_cleanup, 0);
 }
