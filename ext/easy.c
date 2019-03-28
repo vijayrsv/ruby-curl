@@ -155,6 +155,21 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
 			break;
+		case CURLOPT_PUT:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_PUT, NUM2LONG(val));
+			break;
+		case CURLOPT_HTTPGET:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTPGET, NUM2LONG(val));
+			break;
+		case CURLOPT_UPLOAD:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_UPLOAD, NUM2LONG(val));
+			break;
+		case CURLOPT_VERBOSE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_VERBOSE, NUM2LONG(val));
+			break;
+		case CURLOPT_POSTFIELDS:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_POSTFIELDS, StringValueCStr(val));
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
