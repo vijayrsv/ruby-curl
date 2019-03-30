@@ -6,8 +6,11 @@
 #include <curl/easy.h>
 
 typedef struct {
-	CURL *cp;
-} rb_curl;
+	CURL *ch;
+	VALUE rb_curl_easy_write_proc;
+	VALUE rb_curl_easy_write_header_proc;
+	VALUE rb_curl_easy_read_proc;
+} rb_curl_easy;
 
 extern VALUE rb_cEasy;
 
