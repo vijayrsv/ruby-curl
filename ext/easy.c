@@ -371,6 +371,9 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_PIPEWAIT:
 			curl_easy_setopt(rb_ch->ch, CURLOPT_PIPEWAIT, NUM2LONG(val));
 			break;
+		case CURLOPT_HTTPAUTH:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTPAUTH, NUM2LONG(val));
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
