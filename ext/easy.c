@@ -380,6 +380,9 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_IPRESOLVE:
 			curl_easy_setopt(rb_ch->ch, CURLOPT_IPRESOLVE, NUM2LONG(val));
 			break;
+		case CURLOPT_POSTREDIR:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_POSTREDIR, NUM2LONG(val));
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}

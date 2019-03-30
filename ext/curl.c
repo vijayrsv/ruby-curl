@@ -10,6 +10,7 @@ void Init_curl() {
 	rb_mInfo = rb_define_module_under(rb_mCurl, "Info");
 	rb_mAuth = rb_define_module_under(rb_mCurl, "Auth");
 	rb_mIPResolve = rb_define_module_under(rb_mCurl, "IPResolve");
+	rb_mRedirPost = rb_define_module_under(rb_mCurl, "RedirPost");
 
 	RB_DEFINE_M_OPT_CONST("URL", CURLOPT_URL);
 	RB_DEFINE_M_OPT_CONST("POST", CURLOPT_POST);
@@ -60,6 +61,7 @@ void Init_curl() {
 	RB_DEFINE_M_OPT_CONST("HTTPAUTH", CURLOPT_HTTPAUTH);
 	RB_DEFINE_M_OPT_CONST("PROXYAUTH", CURLOPT_PROXYAUTH);
 	RB_DEFINE_M_OPT_CONST("IPRESOLVE", CURLOPT_IPRESOLVE);
+	RB_DEFINE_M_OPT_CONST("POSTREDIR", CURLOPT_POSTREDIR);
 
 	RB_DEFINE_M_INFO_CONST("EFFECTIVE_URL", CURLINFO_EFFECTIVE_URL);
 	RB_DEFINE_M_INFO_CONST("RESPONSE_CODE", CURLINFO_RESPONSE_CODE);
@@ -115,6 +117,12 @@ void Init_curl() {
 	RB_DEFINE_M_IPResolve_CONST("WHATEVER", CURL_IPRESOLVE_WHATEVER);
 	RB_DEFINE_M_IPResolve_CONST("V4", CURL_IPRESOLVE_V4);
 	RB_DEFINE_M_IPResolve_CONST("V6", CURL_IPRESOLVE_V6);
+	
+	/* appending C for code before int code to enable assignment */
+	RB_DEFINE_M_RedirPost_CONST("C301", CURL_REDIR_POST_301);
+	RB_DEFINE_M_RedirPost_CONST("C302", CURL_REDIR_POST_302);
+	RB_DEFINE_M_RedirPost_CONST("C303", CURL_REDIR_POST_303);
+	RB_DEFINE_M_RedirPost_CONST("ALL", CURL_REDIR_POST_ALL);
 
 	Init_easy();
 }
