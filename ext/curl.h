@@ -15,6 +15,9 @@
 #define RB_DEFINE_M_AUTH_CONST(name, curl_auth_name) \
 	rb_define_const(rb_mAuth, name, LONG2NUM(curl_auth_name))
 
+#define RB_DEFINE_M_IPResolve_CONST(name, curl_ipresolve_name) \
+	rb_define_const(rb_mIPResolve, name, LONG2NUM(curl_ipresolve_name))
+
 extern VALUE rb_mCurl;
 
 void Init_curl();

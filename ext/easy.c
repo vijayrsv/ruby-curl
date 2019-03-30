@@ -374,6 +374,12 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_HTTPAUTH:
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTPAUTH, NUM2LONG(val));
 			break;
+		case CURLOPT_PROXYAUTH:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_PROXYAUTH, NUM2LONG(val));
+			break;
+		case CURLOPT_IPRESOLVE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_IPRESOLVE, NUM2LONG(val));
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
