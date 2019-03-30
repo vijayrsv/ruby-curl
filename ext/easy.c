@@ -266,6 +266,111 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_POSTFIELDS:
 			curl_easy_setopt(rb_ch->ch, CURLOPT_POSTFIELDS, StringValueCStr(val));
 			break;
+		case CURLOPT_USERAGENT:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_USERAGENT, StringValueCStr(val));
+			break;
+		case CURLOPT_USERPWD:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_USERPWD, StringValueCStr(val));
+			break;
+		case CURLOPT_MAXFILESIZE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_MAXFILESIZE, NUM2LONG(val));
+			break;
+		case CURLOPT_NETRC_FILE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_NETRC_FILE, StringValueCStr(val));
+			break;
+		case CURLOPT_TCP_NODELAY:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_TCP_NODELAY, NUM2LONG(val));
+			break;
+		case CURLOPT_COOKIELIST:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_COOKIELIST, StringValueCStr(val));
+			break;
+		case CURLOPT_IGNORE_CONTENT_LENGTH:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_IGNORE_CONTENT_LENGTH, NUM2LONG(val));
+			break;
+		case CURLOPT_CONNECT_ONLY:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_CONNECT_ONLY, NUM2LONG(val));
+			break;
+		case CURLOPT_LOCALPORT:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_LOCALPORT, NUM2LONG(val));
+			break;
+		case CURLOPT_MAX_RECV_SPEED_LARGE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_MAX_RECV_SPEED_LARGE, (curl_off_t) NUM2LL(val));
+			break;
+		case CURLOPT_MAX_SEND_SPEED_LARGE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_MAX_SEND_SPEED_LARGE, (curl_off_t) NUM2LL(val));
+			break;
+		case CURLOPT_SSL_SESSIONID_CACHE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_SSL_SESSIONID_CACHE, NUM2LONG(val));
+			break;
+		case CURLOPT_CONNECTTIMEOUT_MS:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_CONNECTTIMEOUT_MS, NUM2LONG(val));
+			break;
+		case CURLOPT_HTTP_CONTENT_DECODING:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTP_CONTENT_DECODING, NUM2LONG(val));
+			break;
+		case CURLOPT_HTTP_TRANSFER_DECODING:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTP_TRANSFER_DECODING, NUM2LONG(val));
+			break;
+		case CURLOPT_TIMEOUT_MS:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_TIMEOUT_MS, NUM2LONG(val));
+			break;
+		case CURLOPT_KRBLEVEL:
+			/* Curl nullable string options */
+			curl_easy_setopt(rb_ch->ch, CURLOPT_KRBLEVEL, NIL_P(val) ? NULL : StringValueCStr(val));
+			break;
+		case CURLOPT_ADDRESS_SCOPE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_ADDRESS_SCOPE, NUM2LONG(val));
+			break;
+		case CURLOPT_CRLFILE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_CRLFILE, StringValueCStr(val));
+			break;
+		case CURLOPT_ISSUERCERT:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_ISSUERCERT, StringValueCStr(val));
+			break;
+		case CURLOPT_KEYPASSWD:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_KEYPASSWD, StringValueCStr(val));
+			break;
+		case CURLOPT_CERTINFO:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_CERTINFO, NUM2LONG(val));
+			break;
+		case CURLOPT_PASSWORD:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_PASSWORD, StringValueCStr(val));
+			break;
+		case CURLOPT_USERNAME:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_USERNAME, StringValueCStr(val));
+			break;
+		case CURLOPT_NOPROXY:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_NOPROXY, StringValueCStr(val));
+			break;
+		case CURLOPT_SOCKS5_GSSAPI_NEC:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_SOCKS5_GSSAPI_NEC, NUM2LONG(val));
+			break;
+		case CURLOPT_SOCKS5_GSSAPI_SERVICE:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_SOCKS5_GSSAPI_SERVICE, StringValueCStr(val));
+			break;
+		case CURLOPT_TLSAUTH_PASSWORD:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_TLSAUTH_PASSWORD, StringValueCStr(val));
+			break;
+		case CURLOPT_TLSAUTH_TYPE:
+			/* parameter is a zero terminated string */
+			curl_easy_setopt(rb_ch->ch, CURLOPT_TLSAUTH_PASSWORD, StringValueCStr(val));
+			break;
+		case CURLOPT_TLSAUTH_USERNAME:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_TLSAUTH_USERNAME, StringValueCStr(val));
+			break;
+		case CURLOPT_GSSAPI_DELEGATION:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_GSSAPI_DELEGATION, NUM2LONG(val));
+			break;
+		case CURLOPT_UNIX_SOCKET_PATH:
+			/* Curl nullable string options */
+			curl_easy_setopt(rb_ch->ch, CURLOPT_UNIX_SOCKET_PATH, NIL_P(val) ? NULL : StringValueCStr(val));
+			break;
+		case CURLOPT_PATH_AS_IS:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_PATH_AS_IS, NUM2LONG(val));
+			break;
+		case CURLOPT_PIPEWAIT:
+			curl_easy_setopt(rb_ch->ch, CURLOPT_PIPEWAIT, NUM2LONG(val));
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
