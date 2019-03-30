@@ -10,14 +10,14 @@ void rb_curl_mark(rb_curl_easy *rb_ch) {
 }
 
 void rb_curl_free(rb_curl_easy *rb_ch) {
-  free(rb_ch);
+	free(rb_ch);
 }
 
 static VALUE rb_curl_allocate(VALUE klass) {
-  rb_curl_easy *rb_ch;
-  rb_ch = ALLOC(rb_curl_easy);
-  rb_ch->ch = NULL;
-  return Data_Wrap_Struct(klass, rb_curl_mark, rb_curl_free, rb_ch);
+	rb_curl_easy *rb_ch;
+	rb_ch = ALLOC(rb_curl_easy);
+	rb_ch->ch = NULL;
+	return Data_Wrap_Struct(klass, rb_curl_mark, rb_curl_free, rb_ch);
 }
 
 static size_t rb_curl_write(char *data, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
@@ -74,24 +74,24 @@ static void rb_curl_easy_set_defaults(rb_curl_easy *rb_ch) {
 }
 
 static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
-  VALUE url;
-  rb_curl_easy *rb_ch;
+	VALUE url;
+	rb_curl_easy *rb_ch;
 
-  rb_scan_args(argc, argv, "01", &url);
+	rb_scan_args(argc, argv, "01", &url);
 
-  Data_Get_Struct(self, rb_curl_easy, rb_ch);
+	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
-  rb_ch->ch = curl_easy_init();
-  if (!rb_ch->ch) {
-    rb_raise(rb_eRuntimeError, "Failed to initialize easy handle");
-  }
+	rb_ch->ch = curl_easy_init();
+	if (!rb_ch->ch) {
+		rb_raise(rb_eRuntimeError, "Failed to initialize easy handle");
+	}
 
 	if (url != Qnil)
-	curl_easy_setopt(rb_ch->ch, CURLOPT_URL, StringValueCStr(url));
+		curl_easy_setopt(rb_ch->ch, CURLOPT_URL, StringValueCStr(url));
 
 	rb_curl_easy_set_defaults(rb_ch);
 
-  return self;
+	return self;
 }
 
 static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
@@ -270,23 +270,26 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
 
-	return Qnil;
+	return Qtrue;
 }
 
 static VALUE rb_curl_easy_perform(VALUE self) {
-  rb_curl_easy *rb_ch;
+	rb_curl_easy *rb_ch;
 
-  Data_Get_Struct(self, rb_curl_easy, rb_ch);
+	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 	curl_easy_perform(rb_ch->ch);
-  return self;
+
+	//XNOTE: CURLE_OK ? self : raise_error
+	return self;
 }
 
 static VALUE rb_curl_easy_cleanup(VALUE self) {
-  rb_curl_easy *rb_ch;
+	rb_curl_easy *rb_ch;
 
-  Data_Get_Struct(self, rb_curl_easy, rb_ch);
+	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 	curl_easy_cleanup(rb_ch->ch);
-  return self;
+	//XNOTE: CURLE_OK ? self : raise_error
+	return self;
 }
 
 void Init_easy() {
