@@ -36,6 +36,7 @@ void rb_curl_mark(rb_curl_easy *rb_ch) {
 }
 
 void rb_curl_free(rb_curl_easy *rb_ch) {
+	curl_slist_free_all(rb_ch->curl_httpheader_slist);
 	free(rb_ch);
 }
 
