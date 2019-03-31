@@ -37,6 +37,8 @@ void rb_curl_mark(rb_curl_easy *rb_ch) {
 
 void rb_curl_free(rb_curl_easy *rb_ch) {
 	curl_slist_free_all(rb_ch->curl_httpheader_slist);
+	curl_slist_free_all(rb_ch->curl_hosts_slist);
+	curl_slist_free_all(rb_ch->curl_headers_slist);
 	free(rb_ch);
 }
 
@@ -48,6 +50,8 @@ static VALUE rb_curl_easy_allocate(VALUE klass) {
 	rb_ch->rb_curl_easy_write_header_proc = Qnil;
 	rb_ch->rb_curl_easy_read_proc = Qnil;
 	rb_ch->curl_httpheader_slist = NULL;
+	rb_ch->curl_hosts_slist = NULL;
+	rb_ch->curl_headers_slist = NULL;
 	return Data_Wrap_Struct(klass, rb_curl_mark, rb_curl_free, rb_ch);
 }
 
@@ -619,6 +623,14 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			break;
 		case CURLOPT_REDIR_PROTOCOLS:
 			curl_easy_setopt(rb_ch->ch, CURLOPT_REDIR_PROTOCOLS, NUM2LONG(val));
+			break;
+		case CURLOPT_RESOLVE:
+			rb_ch->curl_hosts_slist = rb_array_to_curl_slist(val, rb_ch->curl_hosts_slist);
+			curl_easy_setopt(rb_ch->ch, CURLOPT_RESOLVE, rb_ch->curl_hosts_slist);
+			break;
+		case CURLOPT_PROXYHEADER:
+			rb_ch->curl_headers_slist = rb_array_to_curl_slist(val, rb_ch->curl_headers_slist);
+			curl_easy_setopt(rb_ch->ch, CURLOPT_RESOLVE, rb_ch->curl_headers_slist);
 			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
