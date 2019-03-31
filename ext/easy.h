@@ -10,6 +10,8 @@ typedef struct {
 	VALUE rb_curl_easy_write_proc;
 	VALUE rb_curl_easy_write_header_proc;
 	VALUE rb_curl_easy_read_proc;
+
+	struct curl_slist * curl_httpheader_slist;
 } rb_curl_easy;
 
 extern VALUE rb_cEasy;
