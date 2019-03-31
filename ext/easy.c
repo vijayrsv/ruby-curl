@@ -104,6 +104,20 @@ static size_t rb_curl_read(char *stream, size_t size, size_t nmemb, rb_curl_easy
 	}
 }
 
+static void rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain, VALUE *listcode) {
+  int i;
+
+  if (curl_certinfo_chain) {
+    for (i=0; i < curl_certinfo_chain->num_of_certs; i++) {
+      struct curl_slist *slist;
+
+			for (slist = curl_certinfo_chain->certinfo[i]; slist; slist = slist->next) {
+				rb_ary_push(listcode, rb_str_new2(slist->data))
+			}
+    }
+  }
+}
+
 static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
 	VALUE url;
 	rb_curl_easy *rb_ch;
@@ -132,6 +146,7 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	long l_var;
 	double d_var;
 	struct curl_slist *curl_list_var = NULL;
+	struct curl_certinfo *curl_certinfo_chain = NULL;
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
@@ -234,6 +249,12 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		case CURLINFO_SSL_VERIFYRESULT:
 			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SSL_VERIFYRESULT, &l_var) == CURLE_OK) {
 				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_CERTINFO:
+			ret_val = rb_ary_new()
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CERTINFO, &curl_certinfo_chain) == CURLE_OK) {
+				rb_curl_create_certinfo(curl_certinfo_chain, ret_val);
 			}
 			break;
 		default:
