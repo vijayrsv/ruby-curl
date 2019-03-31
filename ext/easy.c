@@ -630,7 +630,7 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			break;
 		case CURLOPT_PROXYHEADER:
 			rb_ch->curl_headers_slist = rb_array_to_curl_slist(val, rb_ch->curl_headers_slist);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_RESOLVE, rb_ch->curl_headers_slist);
+			curl_easy_setopt(rb_ch->ch, CURLOPT_PROXYHEADER, rb_ch->curl_headers_slist);
 			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");

@@ -3,7 +3,7 @@
 VALUE rb_mCurl;
 
 void Init_curl() {
-	VALUE rb_mOption, rb_mInfo;
+	VALUE rb_mOption, rb_mInfo, rb_mAuth, rb_mProto;
 
 	rb_mCurl   = rb_define_module("Curl");
 	rb_mOption = rb_define_module_under(rb_mCurl, "Option");
@@ -189,7 +189,9 @@ void Init_curl() {
 	RB_DEFINE_M_AUTH_CONST("BASIC", CURLAUTH_BASIC);
 	RB_DEFINE_M_AUTH_CONST("DIGEST", CURLAUTH_DIGEST);
 	RB_DEFINE_M_AUTH_CONST("DIGEST_IE", CURLAUTH_DIGEST_IE);
+#if LIBCURL_VERSION_NUM >= 0x073d00 /* Available since 7.61.0 */
 	RB_DEFINE_M_AUTH_CONST("BEARER", CURLAUTH_BEARER);
+#endif
 	RB_DEFINE_M_AUTH_CONST("NEGOTIATE", CURLAUTH_NEGOTIATE);
 	RB_DEFINE_M_AUTH_CONST("NTLM", CURLAUTH_NTLM);
 	RB_DEFINE_M_AUTH_CONST("NTLM_WB", CURLAUTH_NTLM_WB);
