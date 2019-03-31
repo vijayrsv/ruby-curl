@@ -21,6 +21,9 @@
 #define RB_DEFINE_M_RedirPost_CONST(name, curl_redirpost_name) \
 	rb_define_const(rb_mRedirPost, name, LONG2NUM(curl_redirpost_name))
 
+#define RB_DEFINE_M_Proto_CONST(name, curl_proto_name) \
+	rb_define_const(rb_mProto, name, LONG2NUM(curl_proto_name))
+
 extern VALUE rb_mCurl;
 
 void Init_curl();
