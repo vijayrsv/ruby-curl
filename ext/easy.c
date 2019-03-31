@@ -236,6 +236,81 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 				ret_val = INT2FIX(l_var);
 			}
 			break;
+		case CURLINFO_PROXY_SSL_VERIFYRESULT:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROXY_SSL_VERIFYRESULT, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_CONTENT_TYPE:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_TYPE, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_HTTPAUTH_AVAIL:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HTTPAUTH_AVAIL, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PROXYAUTH_AVAIL:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROXYAUTH_AVAIL, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_OS_ERRNO:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_OS_ERRNO, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_NUM_CONNECTS:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_NUM_CONNECTS, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PRIMARY_IP:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRIMARY_IP, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_PRIMARY_PORT:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRIMARY_PORT, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_LOCAL_IP:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LOCAL_IP, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_LOCAL_PORT:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LOCAL_PORT, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_LASTSOCKET:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LASTSOCKET, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PROTOCOL:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROTOCOL, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_SCHEME:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SCHEME, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &d_var) == CURLE_OK) {
+				ret_val = DBL2NUM(d_var);
+			}
+			break;
+		case CURLINFO_CONTENT_LENGTH_UPLOAD:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_LENGTH_UPLOAD, &d_var) == CURLE_OK) {
+				ret_val = DBL2NUM(d_var);
+			}
+			break;
 		default:
 			rb_raise(rb_eTypeError, "Unsupported information.");
 	}
