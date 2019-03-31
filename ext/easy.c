@@ -29,10 +29,10 @@ static inline struct curl_slist *rb_array_to_curl_slist(VALUE arr, struct curl_s
 	return slist;
 }
 
-static inline struct VALUE *curl_slist_to_rb_array(struct curl_slist *slist, VALUE arr) {
-	arr = rb_ary_new();
+static inline VALUE curl_slist_to_rb_array(struct curl_slist *slist) {
+	VALUE arr = rb_ary_new();
 	while (slist) {
-		rb_ary_push(arr, slist->data);
+		rb_ary_push(arr, rb_str_new_cstr(slist->data));
 		slist = slist->next;
 	}
 	return arr;
@@ -113,8 +113,9 @@ static size_t rb_curl_read(char *stream, size_t size, size_t nmemb, rb_curl_easy
 	}
 }
 
-static void rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain, VALUE *listcode) {
+static VALUE rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain) {
   int i;
+	VALUE listcode = rb_ary_new();
 
   if (curl_certinfo_chain) {
     for (i=0; i < curl_certinfo_chain->num_of_certs; i++) {
@@ -125,6 +126,8 @@ static void rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain, V
 			}
     }
   }
+
+	return listcode;
 }
 
 static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
@@ -156,9 +159,6 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	double d_var;
 	struct curl_slist *curl_list_var = NULL;
 	struct curl_certinfo *curl_certinfo_chain = NULL;
-	struct curl_socket_t *curl_socket = NULL;
-	struct curl_slist *engines;
-	struct curl_slist *cookies;
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
@@ -264,26 +264,15 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 			}
 			break;
 		case CURLINFO_CERTINFO:
-			ret_val = rb_ary_new();
 			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CERTINFO, &curl_certinfo_chain) == CURLE_OK) {
-				rb_curl_create_certinfo(curl_certinfo_chain, ret_val);
-			}
-			break;
-		case CURLINFO_ACTIVESOCKET:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_ACTIVESOCKET, &curl_socket) == CURLE_OK) {
-				ret_val = INT2FIX(curl_socket->clientp);
+				ret_val = rb_curl_create_certinfo(curl_certinfo_chain);
 			}
 			break;
 		case CURLINFO_SSL_ENGINES:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SSL_ENGINES, &engines) == CURLE_OK) {
-				curl_slist_to_rb_array(engines, ret_val)
-				curl_slist_free_all(engines);
-			}
-			break;
 		case CURLINFO_COOKIELIST:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_COOKIELIST, &cookies) == CURLE_OK) {
-				curl_slist_to_rb_array(cookies, ret_val)
-				curl_slist_free_all(cookies);
+			if (curl_easy_getinfo(rb_ch->ch, information, &curl_list_var) == CURLE_OK) {
+				ret_val = curl_slist_to_rb_array(curl_list_var);
+				curl_slist_free_all(curl_list_var);
 			}
 			break;
 		default:
