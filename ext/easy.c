@@ -29,6 +29,15 @@ static inline struct curl_slist *rb_array_to_curl_slist(VALUE arr, struct curl_s
 	return slist;
 }
 
+static inline struct VALUE *curl_slist_to_rb_array(struct curl_slist *slist, VALUE arr) {
+	arr = rb_ary_new();
+	while (slist) {
+		rb_ary_push(arr, slist->data);
+		slist = slist->next;
+	}
+	return arr;
+}
+
 void rb_curl_mark(rb_curl_easy *rb_ch) {
 	rb_gc_mark(rb_ch->rb_curl_easy_write_proc);
 	rb_gc_mark(rb_ch->rb_curl_easy_write_header_proc);
@@ -148,6 +157,8 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	struct curl_slist *curl_list_var = NULL;
 	struct curl_certinfo *curl_certinfo_chain = NULL;
 	struct curl_socket_t *curl_socket = NULL;
+	struct curl_slist *engines;
+	struct curl_slist *cookies;
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
@@ -253,7 +264,7 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 			}
 			break;
 		case CURLINFO_CERTINFO:
-			ret_val = rb_ary_new()
+			ret_val = rb_ary_new();
 			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CERTINFO, &curl_certinfo_chain) == CURLE_OK) {
 				rb_curl_create_certinfo(curl_certinfo_chain, ret_val);
 			}
@@ -261,6 +272,18 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		case CURLINFO_ACTIVESOCKET:
 			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_ACTIVESOCKET, &curl_socket) == CURLE_OK) {
 				ret_val = INT2FIX(curl_socket->clientp);
+			}
+			break;
+		case CURLINFO_SSL_ENGINES:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SSL_ENGINES, &engines) == CURLE_OK) {
+				curl_slist_to_rb_array(engines, ret_val)
+				curl_slist_free_all(engines);
+			}
+			break;
+		case CURLINFO_COOKIELIST:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_COOKIELIST, &cookies) == CURLE_OK) {
+				curl_slist_to_rb_array(cookies, ret_val)
+				curl_slist_free_all(cookies);
 			}
 			break;
 		default:
