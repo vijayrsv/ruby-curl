@@ -15,12 +15,6 @@
 #define RB_DEFINE_M_AUTH_CONST(name, curl_auth_name) \
 	rb_define_const(rb_mAuth, name, LONG2NUM(curl_auth_name))
 
-#define RB_DEFINE_M_IPResolve_CONST(name, curl_ipresolve_name) \
-	rb_define_const(rb_mIPResolve, name, LONG2NUM(curl_ipresolve_name))
-
-#define RB_DEFINE_M_RedirPost_CONST(name, curl_redirpost_name) \
-	rb_define_const(rb_mRedirPost, name, LONG2NUM(curl_redirpost_name))
-
 #define RB_DEFINE_M_Proto_CONST(name, curl_proto_name) \
 	rb_define_const(rb_mProto, name, LONG2NUM(curl_proto_name))
 

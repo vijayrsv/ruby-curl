@@ -9,10 +9,18 @@ void Init_curl() {
 	rb_mOption = rb_define_module_under(rb_mCurl, "Option");
 	rb_mInfo = rb_define_module_under(rb_mCurl, "Info");
 	rb_mAuth = rb_define_module_under(rb_mCurl, "Auth");
-	rb_mIPResolve = rb_define_module_under(rb_mCurl, "IPResolve");
-	rb_mRedirPost = rb_define_module_under(rb_mCurl, "RedirPost");
 	rb_mProto = rb_define_module_under(rb_mCurl, "Proto");
 
+	/* Curl constants */
+	rb_define_const(rb_mCurl, "REDIR_POST_301", LONG2NUM(CURL_REDIR_POST_301));
+	rb_define_const(rb_mCurl, "REDIR_POST_302", LONG2NUM(CURL_REDIR_POST_302));
+	rb_define_const(rb_mCurl, "REDIR_POST_303", LONG2NUM(CURL_REDIR_POST_303));
+	rb_define_const(rb_mCurl, "REDIR_POST_ALL", LONG2NUM(CURL_REDIR_POST_ALL));
+	rb_define_const(rb_mCurl, "IPRESOLVE_WHATEVER", LONG2NUM(CURL_IPRESOLVE_WHATEVER));
+	rb_define_const(rb_mCurl, "IPRESOLVE_V4", LONG2NUM(CURL_IPRESOLVE_V4));
+	rb_define_const(rb_mCurl, "IPRESOLVE_V6", LONG2NUM(CURL_IPRESOLVE_V6));
+
+	/* Curl::Option constants */
 	RB_DEFINE_M_OPT_CONST("URL", CURLOPT_URL);
 	RB_DEFINE_M_OPT_CONST("POST", CURLOPT_POST);
 	RB_DEFINE_M_OPT_CONST("TIMEOUT", CURLOPT_TIMEOUT);
@@ -136,6 +144,7 @@ void Init_curl() {
 	RB_DEFINE_M_OPT_CONST("RESOLVE", CURLOPT_RESOLVE);
 	RB_DEFINE_M_OPT_CONST("PROXYHEADER", CURLOPT_PROXYHEADER);
 
+	/* Curl::Info constants */
 	RB_DEFINE_M_INFO_CONST("EFFECTIVE_URL", CURLINFO_EFFECTIVE_URL);
 	RB_DEFINE_M_INFO_CONST("RESPONSE_CODE", CURLINFO_RESPONSE_CODE);
 	RB_DEFINE_M_INFO_CONST("HTTP_CONNECTCODE", CURLINFO_HTTP_CONNECTCODE);
@@ -176,6 +185,7 @@ void Init_curl() {
 	RB_DEFINE_M_INFO_CONST("CONTENT_LENGTH_DOWNLOAD", CURLINFO_CONTENT_LENGTH_DOWNLOAD);
 	RB_DEFINE_M_INFO_CONST("CONTENT_LENGTH_UPLOAD", CURLINFO_CONTENT_LENGTH_UPLOAD);
 	
+	/* Curl::Auth constants */
 	RB_DEFINE_M_AUTH_CONST("BASIC", CURLAUTH_BASIC);
 	RB_DEFINE_M_AUTH_CONST("DIGEST", CURLAUTH_DIGEST);
 	RB_DEFINE_M_AUTH_CONST("DIGEST_IE", CURLAUTH_DIGEST_IE);
@@ -187,16 +197,7 @@ void Init_curl() {
 	RB_DEFINE_M_AUTH_CONST("ANYSAFE", CURLAUTH_ANYSAFE);
 	RB_DEFINE_M_AUTH_CONST("ONLY", CURLAUTH_ONLY);
 	
-	RB_DEFINE_M_IPResolve_CONST("WHATEVER", CURL_IPRESOLVE_WHATEVER);
-	RB_DEFINE_M_IPResolve_CONST("V4", CURL_IPRESOLVE_V4);
-	RB_DEFINE_M_IPResolve_CONST("V6", CURL_IPRESOLVE_V6);
-	
-	/* appending C for code before int code to enable assignment */
-	RB_DEFINE_M_RedirPost_CONST("C301", CURL_REDIR_POST_301);
-	RB_DEFINE_M_RedirPost_CONST("C302", CURL_REDIR_POST_302);
-	RB_DEFINE_M_RedirPost_CONST("C303", CURL_REDIR_POST_303);
-	RB_DEFINE_M_RedirPost_CONST("ALL", CURL_REDIR_POST_ALL);
-	
+	/* Curl::Proto constants */
 	RB_DEFINE_M_Proto_CONST("DICT", CURLPROTO_DICT);
 	RB_DEFINE_M_Proto_CONST("FILE", CURLPROTO_FILE);
 	RB_DEFINE_M_Proto_CONST("FTP", CURLPROTO_FTP);
