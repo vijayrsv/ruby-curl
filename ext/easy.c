@@ -112,7 +112,7 @@ static void rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain, V
       struct curl_slist *slist;
 
 			for (slist = curl_certinfo_chain->certinfo[i]; slist; slist = slist->next) {
-				rb_ary_push(listcode, rb_str_new2(slist->data))
+				rb_ary_push(listcode, rb_str_new2(slist->data));
 			}
     }
   }
@@ -147,6 +147,7 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	double d_var;
 	struct curl_slist *curl_list_var = NULL;
 	struct curl_certinfo *curl_certinfo_chain = NULL;
+	struct curl_socket_t *curl_socket = NULL;
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
@@ -255,6 +256,11 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 			ret_val = rb_ary_new()
 			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CERTINFO, &curl_certinfo_chain) == CURLE_OK) {
 				rb_curl_create_certinfo(curl_certinfo_chain, ret_val);
+			}
+			break;
+		case CURLINFO_ACTIVESOCKET:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_ACTIVESOCKET, &curl_socket) == CURLE_OK) {
+				ret_val = INT2FIX(curl_socket->clientp);
 			}
 			break;
 		default:
