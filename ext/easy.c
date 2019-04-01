@@ -43,9 +43,7 @@ void rb_curl_free(rb_curl_easy *rb_ch) {
 	free(rb_ch);
 }
 
-static VALUE rb_curl_easy_allocate(VALUE klass) {
-	rb_curl_easy *rb_ch;
-	rb_ch = ALLOC(rb_curl_easy);
+static void rb_curl_zero_state(rb_curl_easy *rb_ch) {
 	rb_ch->ch = NULL;
 	rb_ch->rb_curl_easy_write_proc = Qnil;
 	rb_ch->rb_curl_easy_write_header_proc = Qnil;
@@ -54,6 +52,12 @@ static VALUE rb_curl_easy_allocate(VALUE klass) {
 	rb_ch->curl_http200aliases_slist = NULL;
 	rb_ch->curl_hosts_slist = NULL;
 	rb_ch->curl_headers_slist = NULL;
+}
+
+static VALUE rb_curl_easy_allocate(VALUE klass) {
+	rb_curl_easy *rb_ch;
+	rb_ch = ALLOC(rb_curl_easy);
+	rb_curl_zero_state(rb_ch);
 	return Data_Wrap_Struct(klass, rb_curl_mark, rb_curl_free, rb_ch);
 }
 
@@ -619,6 +623,16 @@ static VALUE rb_curl_easy_cleanup(VALUE self) {
 	return self;
 }
 
+static VALUE rb_curl_easy_reset(VALUE self) {
+	rb_curl_easy *rb_ch;
+	
+	Data_Get_Struct(self, rb_curl_easy, rb_ch);
+	curl_easy_reset(rb_ch->ch);
+	rb_curl_zero_state(rb_ch);
+	// CURLE_OK ? self : raise_error
+	return self;
+}
+
 void Init_easy() {
 	id_call = rb_intern("call");
 
@@ -629,4 +643,5 @@ void Init_easy() {
 	rb_define_method(rb_cEasy, "getinfo", rb_curl_easy_getinfo, 1);
 	rb_define_method(rb_cEasy, "perform", rb_curl_easy_perform, 0);
 	rb_define_method(rb_cEasy, "cleanup", rb_curl_easy_cleanup, 0);
+	rb_define_method(rb_cEasy, "reset", rb_curl_easy_reset, 0);
 }
