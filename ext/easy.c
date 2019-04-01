@@ -29,6 +29,15 @@ static inline struct curl_slist *rb_array_to_curl_slist(VALUE arr, struct curl_s
 	return slist;
 }
 
+static inline VALUE curl_slist_to_rb_array(struct curl_slist *slist) {
+	VALUE arr = rb_ary_new();
+	while (slist) {
+		rb_ary_push(arr, rb_str_new_cstr(slist->data));
+		slist = slist->next;
+	}
+	return arr;
+}
+
 void rb_curl_mark(rb_curl_easy *rb_ch) {
 	rb_gc_mark(rb_ch->rb_curl_easy_write_proc);
 	rb_gc_mark(rb_ch->rb_curl_easy_write_header_proc);
@@ -108,6 +117,23 @@ static size_t rb_curl_read(char *stream, size_t size, size_t nmemb, rb_curl_easy
 	}
 }
 
+static VALUE rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain) {
+  int i;
+	VALUE listcode = rb_ary_new();
+
+  if (curl_certinfo_chain) {
+    for (i=0; i < curl_certinfo_chain->num_of_certs; i++) {
+      struct curl_slist *slist;
+
+			for (slist = curl_certinfo_chain->certinfo[i]; slist; slist = slist->next) {
+				rb_ary_push(listcode, rb_str_new2(slist->data));
+			}
+    }
+  }
+
+	return listcode;
+}
+
 static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
 	VALUE url;
 	rb_curl_easy *rb_ch;
@@ -136,6 +162,7 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	long l_var;
 	double d_var;
 	struct curl_slist *curl_list_var = NULL;
+	struct curl_certinfo *curl_certinfo_chain = NULL;
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
@@ -238,6 +265,93 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		case CURLINFO_SSL_VERIFYRESULT:
 			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SSL_VERIFYRESULT, &l_var) == CURLE_OK) {
 				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PROXY_SSL_VERIFYRESULT:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROXY_SSL_VERIFYRESULT, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_CONTENT_TYPE:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_TYPE, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_HTTPAUTH_AVAIL:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HTTPAUTH_AVAIL, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PROXYAUTH_AVAIL:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROXYAUTH_AVAIL, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_OS_ERRNO:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_OS_ERRNO, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_NUM_CONNECTS:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_NUM_CONNECTS, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PRIMARY_IP:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRIMARY_IP, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_PRIMARY_PORT:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRIMARY_PORT, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_LOCAL_IP:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LOCAL_IP, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_LOCAL_PORT:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LOCAL_PORT, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_LASTSOCKET:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LASTSOCKET, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_PROTOCOL:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROTOCOL, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		case CURLINFO_SCHEME:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SCHEME, &s_var) == CURLE_OK) {
+				ret_val = rb_str_new2(s_var);
+			}
+			break;
+		case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &d_var) == CURLE_OK) {
+				ret_val = DBL2NUM(d_var);
+			}
+			break;
+		case CURLINFO_CONTENT_LENGTH_UPLOAD:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_LENGTH_UPLOAD, &d_var) == CURLE_OK) {
+				ret_val = DBL2NUM(d_var);
+			}
+			break;
+		case CURLINFO_CERTINFO:
+			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CERTINFO, &curl_certinfo_chain) == CURLE_OK) {
+				ret_val = rb_curl_create_certinfo(curl_certinfo_chain);
+			}
+			break;
+		case CURLINFO_SSL_ENGINES:
+		case CURLINFO_COOKIELIST:
+			if (curl_easy_getinfo(rb_ch->ch, information, &curl_list_var) == CURLE_OK) {
+				ret_val = curl_slist_to_rb_array(curl_list_var);
+				curl_slist_free_all(curl_list_var);
 			}
 			break;
 		default:
