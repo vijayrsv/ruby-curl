@@ -168,12 +168,20 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 
 	switch (information) {
 		/* pointer to a char pointer */
-		case CURLINFO_EFFECTIVE_URL:
+#if LIBCURL_VERSION_NUM >= 0x071202 /* Curl::Info constants (Available since 7.18.2) */
 		case CURLINFO_REDIRECT_URL:
-		case CURLINFO_CONTENT_TYPE:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071300 /* Curl::Info constants (Available since 7.19.0) */
 		case CURLINFO_PRIMARY_IP:
+#endif
+		case CURLINFO_CONTENT_TYPE:
+#if LIBCURL_VERSION_NUM >= 0x071500 /* Curl::Info constants (Available since 7.21.0) */
 		case CURLINFO_LOCAL_IP:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x073400 /* Curl::Info constants (Available since 7.52.0) */
 		case CURLINFO_SCHEME:
+#endif
+		case CURLINFO_EFFECTIVE_URL:
 		{
 			if (curl_easy_getinfo(rb_ch->ch, information, &s_var) == CURLE_OK) {
 				ret_val = rb_str_new2(s_var);
@@ -182,23 +190,29 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		}
 
 		/* pointer to a long */
+#if LIBCURL_VERSION_NUM >= 0x071500 /* Curl::Info constants (Available since 7.21.0) */
+		case CURLINFO_LOCAL_PORT:
+		case CURLINFO_PRIMARY_PORT:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x073200 /* Curl::Info constants (Available since 7.50.0) */
+		case CURLINFO_HTTP_VERSION:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x073400 /* Curl::Info constants (Available since 7.52.0) */
+		case CURLINFO_PROTOCOL:
+		case CURLINFO_PROXY_SSL_VERIFYRESULT:
+#endif
 		case CURLINFO_RESPONSE_CODE:
 		case CURLINFO_HTTP_CONNECTCODE:
-		case CURLINFO_HTTP_VERSION:
 		case CURLINFO_FILETIME:
 		case CURLINFO_REDIRECT_COUNT:
 		case CURLINFO_HEADER_SIZE:
 		case CURLINFO_REQUEST_SIZE:
 		case CURLINFO_SSL_VERIFYRESULT:
-		case CURLINFO_PROXY_SSL_VERIFYRESULT:
 		case CURLINFO_HTTPAUTH_AVAIL:
 		case CURLINFO_PROXYAUTH_AVAIL:
 		case CURLINFO_OS_ERRNO:
 		case CURLINFO_NUM_CONNECTS:
-		case CURLINFO_PRIMARY_PORT:
-		case CURLINFO_LOCAL_PORT:
 		case CURLINFO_LASTSOCKET:
-		case CURLINFO_PROTOCOL:
 		{
 			if (curl_easy_getinfo(rb_ch->ch, information, &l_var) == CURLE_OK) {
 				ret_val = INT2FIX(l_var);
@@ -227,6 +241,7 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		}
 
 		/*  pointer to a 'struct curl_certinfo *' */
+#if LIBCURL_VERSION_NUM >= 0x071301 /* Curl::Info constants (Available since 7.19.1) */
 		case CURLINFO_CERTINFO:
 		{
 			if (curl_easy_getinfo(rb_ch->ch, information, &curl_certinfo_chain) == CURLE_OK) {
@@ -234,6 +249,7 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 			}
 			break;
 		}
+#endif
 
 		/* address of a 'struct curl_slist *' */
 		case CURLINFO_SSL_ENGINES:
