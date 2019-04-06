@@ -376,26 +376,51 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_HTTPGET:
 		case CURLOPT_UPLOAD:
 		case CURLOPT_VERBOSE:
-		case CURLOPT_MAXFILESIZE:
+#if LIBCURL_VERSION_NUM >= 0x070b02 /* Available since 7.11.2 */
 		case CURLOPT_TCP_NODELAY:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x070e01 /* Available since 7.14.1 */
 		case CURLOPT_IGNORE_CONTENT_LENGTH:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x070f02 /* Available since 7.15.2 */
 		case CURLOPT_CONNECT_ONLY:
 		case CURLOPT_LOCALPORT:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071000 /* Available since 7.16.0 */
 		case CURLOPT_SSL_SESSIONID_CACHE:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071002 /* Available since 7.16.2 */
 		case CURLOPT_CONNECTTIMEOUT_MS:
 		case CURLOPT_HTTP_CONTENT_DECODING:
 		case CURLOPT_HTTP_TRANSFER_DECODING:
 		case CURLOPT_TIMEOUT_MS:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071300 /* Available since 7.19.0 */
 		case CURLOPT_ADDRESS_SCOPE:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071301 /* Available since 7.19.1 */
 		case CURLOPT_CERTINFO:
-		case CURLOPT_SOCKS5_GSSAPI_NEC:
-		case CURLOPT_GSSAPI_DELEGATION:
-		case CURLOPT_PATH_AS_IS:
-		case CURLOPT_PIPEWAIT:
-		case CURLOPT_HTTPAUTH:
-		case CURLOPT_PROXYAUTH:
-		case CURLOPT_IPRESOLVE:
 		case CURLOPT_POSTREDIR:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071600 /* Available since 7.22.0 */
+		case CURLOPT_GSSAPI_DELEGATION:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x072a00 /* Available since 7.42.0 */
+		case CURLOPT_PATH_AS_IS:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x072b00 /* Available since 7.43.0 */
+		case CURLOPT_PIPEWAIT:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x070a06 /* Available since 7.10.6 */
+		case CURLOPT_HTTPAUTH:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x070a07 /* Available since 7.10.7 */
+		case CURLOPT_PROXYAUTH:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x070a08 /* Available since 7.10.8 */
+		case CURLOPT_IPRESOLVE:
+		case CURLOPT_MAXFILESIZE:
+#endif
 		case CURLOPT_AUTOREFERER:
 		case CURLOPT_BUFFERSIZE:
 		case CURLOPT_CONNECTTIMEOUT:
@@ -429,14 +454,21 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_TIMECONDITION:
 		case CURLOPT_TIMEVALUE:
 		case CURLOPT_UNRESTRICTED_AUTH:
+#if LIBCURL_VERSION_NUM >= 0x071304 /* Available since 7.19.4 */
 		case CURLOPT_PROTOCOLS:
 		case CURLOPT_REDIR_PROTOCOLS:
+		case CURLOPT_SOCKS5_GSSAPI_NEC:
+#endif
 			curl_easy_setopt(rb_ch->ch, option, NUM2LONG(val));
 			break;
 		case CURLOPT_URL:
+#if LIBCURL_VERSION_NUM >= 0x071301 /* Available since 7.19.1 */
 		case CURLOPT_PASSWORD:
 		case CURLOPT_USERNAME:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071304 /* Available since 7.19.4 */
 		case CURLOPT_SOCKS5_GSSAPI_SERVICE:
+#endif
 		case CURLOPT_CAINFO:
 		case CURLOPT_SSLCERTTYPE:
 		case CURLOPT_SSLKEYTYPE:
@@ -445,17 +477,31 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_POSTFIELDS:
 		case CURLOPT_USERAGENT:
 		case CURLOPT_USERPWD:
+#if LIBCURL_VERSION_NUM >= 0x070b00 /* Available since 7.11.0 */
 		case CURLOPT_NETRC_FILE:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x070e01 /* Available since 7.14.1 */
 		case CURLOPT_COOKIELIST:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071004 /* Available since 7.16.4 */
 		case CURLOPT_KRBLEVEL:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071300 /* Available since 7.19.0 */
 		case CURLOPT_CRLFILE:
 		case CURLOPT_ISSUERCERT:
 		case CURLOPT_KEYPASSWD:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071304 /* Available since 7.19.4 */
 		case CURLOPT_NOPROXY:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071504 /* Available since 7.21.4 */
 		case CURLOPT_TLSAUTH_PASSWORD:
 		case CURLOPT_TLSAUTH_TYPE:
+#endif
 		case CURLOPT_TLSAUTH_USERNAME:
+#if LIBCURL_VERSION_NUM >= 0x072800 /* Available since 7.40.0 */
 		case CURLOPT_UNIX_SOCKET_PATH:
+#endif
 		case CURLOPT_CAPATH:
 		case CURLOPT_COOKIE:
 		case CURLOPT_COOKIEFILE:
@@ -490,10 +536,12 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
 			break;
+#if LIBCURL_VERSION_NUM >= 0x070f02 /* Available since 7.15.2 */
 		case CURLOPT_MAX_RECV_SPEED_LARGE:
 		case CURLOPT_MAX_SEND_SPEED_LARGE:
 			curl_easy_setopt(rb_ch->ch, option, (curl_off_t) NUM2LL(val));
 			break;
+#endif
 		case CURLOPT_HTTP200ALIASES:
 			rb_ch->curl_http200aliases_slist = rb_array_to_curl_slist(val, rb_ch->curl_http200aliases_slist);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTP200ALIASES, rb_ch->curl_http200aliases_slist);
@@ -502,14 +550,18 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			rb_ch->curl_httpheader_slist = rb_array_to_curl_slist(val, rb_ch->curl_httpheader_slist);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTPHEADER, rb_ch->curl_httpheader_slist);
 			break;
+#if LIBCURL_VERSION_NUM >= 0x071503 /* Available since 7.21.3 */
 		case CURLOPT_RESOLVE:
 			rb_ch->curl_hosts_slist = rb_array_to_curl_slist(val, rb_ch->curl_hosts_slist);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_RESOLVE, rb_ch->curl_hosts_slist);
 			break;
+#endif
+#if LIBCURL_VERSION_NUM >= 0x072500 /* Available since 7.37.0 */
 		case CURLOPT_PROXYHEADER:
 			rb_ch->curl_headers_slist = rb_array_to_curl_slist(val, rb_ch->curl_headers_slist);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_PROXYHEADER, rb_ch->curl_headers_slist);
 			break;
+#endif
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
