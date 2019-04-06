@@ -167,193 +167,101 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 
 	switch (information) {
-		case CURLINFO_EFFECTIVE_URL:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_EFFECTIVE_URL, &s_var) == CURLE_OK) {
-				ret_val = rb_str_new2(s_var);
-			}
-			break;
-		case CURLINFO_RESPONSE_CODE:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_RESPONSE_CODE, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_HTTP_CONNECTCODE:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HTTP_CONNECTCODE, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_HTTP_VERSION:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HTTP_VERSION, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_FILETIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_FILETIME, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_TOTAL_TIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_TOTAL_TIME, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_NAMELOOKUP_TIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_NAMELOOKUP_TIME, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_CONNECT_TIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONNECT_TIME, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_PRETRANSFER_TIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRETRANSFER_TIME, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_STARTTRANSFER_TIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_STARTTRANSFER_TIME, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_REDIRECT_TIME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_REDIRECT_TIME, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_REDIRECT_COUNT:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_REDIRECT_COUNT, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
+		/* pointer to a char pointer */
+#if LIBCURL_VERSION_NUM >= 0x071202 /* Curl::Info constants (Available since 7.18.2) */
 		case CURLINFO_REDIRECT_URL:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_REDIRECT_URL, &s_var) == CURLE_OK) {
-				ret_val = rb_str_new2(s_var);
-			}
-			break;
-		case CURLINFO_SIZE_UPLOAD:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SIZE_UPLOAD, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_SIZE_DOWNLOAD:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SIZE_DOWNLOAD, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_SPEED_UPLOAD:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SPEED_UPLOAD, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_SPEED_DOWNLOAD:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SPEED_DOWNLOAD, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
-		case CURLINFO_HEADER_SIZE:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HEADER_SIZE, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_REQUEST_SIZE:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_REQUEST_SIZE, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_SSL_VERIFYRESULT:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SSL_VERIFYRESULT, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_PROXY_SSL_VERIFYRESULT:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROXY_SSL_VERIFYRESULT, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_CONTENT_TYPE:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_TYPE, &s_var) == CURLE_OK) {
-				ret_val = rb_str_new2(s_var);
-			}
-			break;
-		case CURLINFO_HTTPAUTH_AVAIL:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_HTTPAUTH_AVAIL, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_PROXYAUTH_AVAIL:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROXYAUTH_AVAIL, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_OS_ERRNO:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_OS_ERRNO, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_NUM_CONNECTS:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_NUM_CONNECTS, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
+#endif
+#if LIBCURL_VERSION_NUM >= 0x071300 /* Curl::Info constants (Available since 7.19.0) */
 		case CURLINFO_PRIMARY_IP:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRIMARY_IP, &s_var) == CURLE_OK) {
-				ret_val = rb_str_new2(s_var);
-			}
-			break;
-		case CURLINFO_PRIMARY_PORT:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PRIMARY_PORT, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
+#endif
+		case CURLINFO_CONTENT_TYPE:
+#if LIBCURL_VERSION_NUM >= 0x071500 /* Curl::Info constants (Available since 7.21.0) */
 		case CURLINFO_LOCAL_IP:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LOCAL_IP, &s_var) == CURLE_OK) {
-				ret_val = rb_str_new2(s_var);
-			}
-			break;
-		case CURLINFO_LOCAL_PORT:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LOCAL_PORT, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_LASTSOCKET:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_LASTSOCKET, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
-		case CURLINFO_PROTOCOL:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_PROTOCOL, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
-			break;
+#endif
+#if LIBCURL_VERSION_NUM >= 0x073400 /* Curl::Info constants (Available since 7.52.0) */
 		case CURLINFO_SCHEME:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_SCHEME, &s_var) == CURLE_OK) {
+#endif
+		case CURLINFO_EFFECTIVE_URL:
+		{
+			if (curl_easy_getinfo(rb_ch->ch, information, &s_var) == CURLE_OK) {
 				ret_val = rb_str_new2(s_var);
 			}
 			break;
+		}
+
+		/* pointer to a long */
+#if LIBCURL_VERSION_NUM >= 0x071500 /* Curl::Info constants (Available since 7.21.0) */
+		case CURLINFO_LOCAL_PORT:
+		case CURLINFO_PRIMARY_PORT:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x073200 /* Curl::Info constants (Available since 7.50.0) */
+		case CURLINFO_HTTP_VERSION:
+#endif
+#if LIBCURL_VERSION_NUM >= 0x073400 /* Curl::Info constants (Available since 7.52.0) */
+		case CURLINFO_PROTOCOL:
+		case CURLINFO_PROXY_SSL_VERIFYRESULT:
+#endif
+		case CURLINFO_RESPONSE_CODE:
+		case CURLINFO_HTTP_CONNECTCODE:
+		case CURLINFO_FILETIME:
+		case CURLINFO_REDIRECT_COUNT:
+		case CURLINFO_HEADER_SIZE:
+		case CURLINFO_REQUEST_SIZE:
+		case CURLINFO_SSL_VERIFYRESULT:
+		case CURLINFO_HTTPAUTH_AVAIL:
+		case CURLINFO_PROXYAUTH_AVAIL:
+		case CURLINFO_OS_ERRNO:
+		case CURLINFO_NUM_CONNECTS:
+		case CURLINFO_LASTSOCKET:
+		{
+			if (curl_easy_getinfo(rb_ch->ch, information, &l_var) == CURLE_OK) {
+				ret_val = INT2FIX(l_var);
+			}
+			break;
+		}
+
+		/* pointer to a double */
+		case CURLINFO_TOTAL_TIME:
+		case CURLINFO_NAMELOOKUP_TIME:
+		case CURLINFO_CONNECT_TIME:
+		case CURLINFO_PRETRANSFER_TIME:
+		case CURLINFO_STARTTRANSFER_TIME:
+		case CURLINFO_REDIRECT_TIME:
+		case CURLINFO_SIZE_UPLOAD:
+		case CURLINFO_SIZE_DOWNLOAD:
+		case CURLINFO_SPEED_UPLOAD:
+		case CURLINFO_SPEED_DOWNLOAD:
 		case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
-			break;
 		case CURLINFO_CONTENT_LENGTH_UPLOAD:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CONTENT_LENGTH_UPLOAD, &d_var) == CURLE_OK) {
+		{
+			if (curl_easy_getinfo(rb_ch->ch, information, &d_var) == CURLE_OK) {
 				ret_val = DBL2NUM(d_var);
 			}
 			break;
+		}
+
+		/*  pointer to a 'struct curl_certinfo *' */
+#if LIBCURL_VERSION_NUM >= 0x071301 /* Curl::Info constants (Available since 7.19.1) */
 		case CURLINFO_CERTINFO:
-			if (curl_easy_getinfo(rb_ch->ch, CURLINFO_CERTINFO, &curl_certinfo_chain) == CURLE_OK) {
+		{
+			if (curl_easy_getinfo(rb_ch->ch, information, &curl_certinfo_chain) == CURLE_OK) {
 				ret_val = rb_curl_create_certinfo(curl_certinfo_chain);
 			}
 			break;
+		}
+#endif
+
+		/* address of a 'struct curl_slist *' */
 		case CURLINFO_SSL_ENGINES:
 		case CURLINFO_COOKIELIST:
+		{
 			if (curl_easy_getinfo(rb_ch->ch, information, &curl_list_var) == CURLE_OK) {
 				ret_val = curl_slist_to_rb_array(curl_list_var);
 				curl_slist_free_all(curl_list_var);
 			}
 			break;
+		}
+
 		default:
 			rb_raise(rb_eTypeError, "Unsupported information.");
 	}
