@@ -12,6 +12,8 @@ void Init_curl() {
 	rb_mAuth = rb_define_module_under(rb_mCurl, "Auth");
 	rb_mProto = rb_define_module_under(rb_mCurl, "Proto");
 
+	curl_global_init(CURL_GLOBAL_ALL);
+
 	/* Curl constants */
 	RB_DEFINE_M_CURL_CONST("HTTP_VERSION_NONE", CURL_HTTP_VERSION_NONE);
 	RB_DEFINE_M_CURL_CONST("HTTP_VERSION_1_0", CURL_HTTP_VERSION_1_0);
