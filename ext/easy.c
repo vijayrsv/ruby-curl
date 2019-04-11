@@ -39,9 +39,10 @@ static inline VALUE curl_slist_to_rb_array(struct curl_slist *slist) {
 }
 
 void rb_curl_mark(rb_curl_easy *rb_ch) {
-	rb_gc_mark(rb_ch->rb_curl_easy_write_proc);
-	rb_gc_mark(rb_ch->rb_curl_easy_write_header_proc);
-	rb_gc_mark(rb_ch->rb_curl_easy_read_proc);
+	rb_gc_mark(rb_ch->self);
+	rb_gc_mark(rb_ch->write_data);
+	rb_gc_mark(rb_ch->write_header_data);
+	rb_gc_mark(rb_ch->read_data);
 }
 
 void rb_curl_free(rb_curl_easy *rb_ch) {
@@ -54,9 +55,12 @@ void rb_curl_free(rb_curl_easy *rb_ch) {
 
 static void rb_curl_zero_state(rb_curl_easy *rb_ch) {
 	rb_ch->ch = NULL;
-	rb_ch->rb_curl_easy_write_proc = Qnil;
-	rb_ch->rb_curl_easy_write_header_proc = Qnil;
-	rb_ch->rb_curl_easy_read_proc = Qnil;
+	rb_ch->write_function = NULL;
+	rb_ch->write_header_function = NULL;
+	rb_ch->read_function = NULL;
+	rb_ch->write_data = Qnil;
+	rb_ch->write_header_data = Qnil;
+	rb_ch->read_data = Qnil;
 	rb_ch->curl_httpheader_slist = NULL;
 	rb_ch->curl_http200aliases_slist = NULL;
 	rb_ch->curl_hosts_slist = NULL;
@@ -70,51 +74,52 @@ static VALUE rb_curl_easy_allocate(VALUE klass) {
 	return Data_Wrap_Struct(klass, rb_curl_mark, rb_curl_free, rb_ch);
 }
 
-static size_t rb_curl_write(char *data, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
-	size_t length = size * nmemb;
-	VALUE ret_val;
+static char* rb_normalized_str(VALUE str) {
 
-	ret_val = rb_funcall(rb_ch->rb_curl_easy_write_proc, id_call, 1, rb_str_new(data, length));
+	if (rb_type(str) == T_SYMBOL)
+		str = rb_sym_to_s(str);
 
-	switch (rb_type(ret_val)) {
-		case T_FIXNUM:
-			return FIX2LONG(ret_val);
-		case T_BIGNUM:
-			return NUM2LONG(ret_val);
-		default:
-			rb_raise(rb_eRuntimeError, "Callback should return the number of bytes read.");
-	}
+	return StringValueCStr(str);
 }
 
-static size_t rb_curl_write_header(char *stream, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
-	size_t length = size * nmemb;
-	VALUE ret_val;
+static size_t rb_curl_write(char *buffer, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
+	VALUE ret_val, buf, buf_io;
 
-	ret_val = rb_funcall(rb_ch->rb_curl_easy_write_header_proc, id_call, 1, rb_str_new(stream, length));
+	buf = rb_str_new(buffer, size * nmemb);
+	buf_io = rb_funcall(rb_const_get(rb_cObject, rb_intern("StringIO")), rb_intern("new"), 2, buf, rb_str_new2("rb"));
+	ret_val = rb_funcall(rb_ch->self, rb_intern(rb_ch->write_function), 4, buf_io, INT2NUM(size), INT2NUM(nmemb), rb_ch->write_data);
+	rb_funcall(buf_io, rb_intern("close"), 0);
 
-	switch (rb_type(ret_val)) {
-		case T_FIXNUM:
-			return FIX2LONG(ret_val);
-		case T_BIGNUM:
-			return NUM2LONG(ret_val);
-		default:
-			rb_raise(rb_eRuntimeError, "Callback should return the number of bytes read.");
-	}
+	return FIX2LONG(ret_val);
 }
 
-static size_t rb_curl_read(char *stream, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
-	size_t max_bytes = size * nmemb;
-	VALUE ret_val;
+static size_t rb_curl_write_header(char *buffer, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
+	VALUE ret_val, buf, buf_io;
 
-	ret_val = rb_funcall(rb_ch->rb_curl_easy_read_proc, id_call, 1, INT2NUM(max_bytes));
+	buf = rb_str_new(buffer, size * nmemb);
+	buf_io = rb_funcall(rb_const_get(rb_cObject, rb_intern("StringIO")), rb_intern("new"), 2, buf, rb_str_new2("rb"));
+	ret_val = rb_funcall(rb_ch->self, rb_intern(rb_ch->write_header_function), 4, buf_io, INT2NUM(size), INT2NUM(nmemb), rb_ch->write_header_data);
+	rb_funcall(buf_io, rb_intern("close"), 0);
 
-	if (rb_type(ret_val) == T_STRING) {
-		memcpy(stream, RSTRING_PTR(ret_val), RSTRING_LEN(ret_val));
-		return RSTRING_LEN(ret_val);
+	return FIX2LONG(ret_val);
+}
+
+static size_t rb_curl_read(char *buffer, size_t size, size_t nmemb, rb_curl_easy *rb_ch) {
+	VALUE ret_val, buf, buf_io;
+	long ret_val_l;
+
+	buf = rb_str_new2("");
+	buf_io = rb_funcall(rb_const_get(rb_cObject, rb_intern("StringIO")), rb_intern("new"), 2, buf, rb_str_new2("wb"));
+	ret_val = rb_funcall(rb_ch->self, rb_intern(rb_ch->read_function), 4, buf_io, INT2NUM(size), INT2NUM(nmemb), rb_ch->read_data);
+	rb_funcall(buf_io, rb_intern("close"), 0);
+
+	ret_val_l = FIX2LONG(ret_val);
+
+	if (ret_val_l > 0) {
+		memcpy(buffer, RSTRING_PTR(buf), RSTRING_LEN(buf));
 	}
-	else {
-		rb_raise(rb_eRuntimeError, "Callback must return a string.");
-	}
+
+	return ret_val_l;
 }
 
 static VALUE rb_curl_create_certinfo(struct curl_certinfo *curl_certinfo_chain) {
@@ -147,6 +152,7 @@ static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
 		rb_raise(rb_eRuntimeError, "Failed to initialize easy handle");
 	}
 
+	rb_ch->self = self;
 	if (url != Qnil)
 		curl_easy_setopt(rb_ch->ch, CURLOPT_URL, StringValueCStr(url));
 
@@ -430,18 +436,30 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			curl_easy_setopt(rb_ch->ch, option, NIL_P(val) ? NULL : StringValueCStr(val));
 			break;
 		case CURLOPT_WRITEFUNCTION:
-			rb_ch->rb_curl_easy_write_proc = val;
+			rb_ch->write_function = NIL_P(val) ? NULL : rb_normalized_str(val);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEFUNCTION, rb_curl_write);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
 			break;
+		case CURLOPT_WRITEDATA:
+			rb_ch->write_data = val;
+			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
+			break;
 		case CURLOPT_HEADERFUNCTION:
-			rb_ch->rb_curl_easy_write_header_proc = val;
+			rb_ch->write_header_function = NIL_P(val) ? NULL : rb_normalized_str(val);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERFUNCTION, rb_curl_write_header);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
 			break;
+		case CURLOPT_HEADERDATA:
+			rb_ch->write_header_data = val;
+			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
+			break;
 		case CURLOPT_READFUNCTION:
-			rb_ch->rb_curl_easy_read_proc = val;
+			rb_ch->read_function = NIL_P(val) ? NULL : rb_normalized_str(val);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
+			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
+			break;
+		case CURLOPT_READDATA:
+			rb_ch->read_data = val;
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
 			break;
 #if LIBCURL_VERSION_NUM >= 0x070f02 /* Available since 7.15.2 */

@@ -7,14 +7,20 @@
 
 typedef struct {
 	CURL *ch;
-	VALUE rb_curl_easy_write_proc;
-	VALUE rb_curl_easy_write_header_proc;
-	VALUE rb_curl_easy_read_proc;
+	VALUE self;
 
-	struct curl_slist * curl_httpheader_slist;
-	struct curl_slist * curl_http200aliases_slist;
-	struct curl_slist * curl_hosts_slist;
-	struct curl_slist * curl_headers_slist;
+	char *write_function;
+	char *write_header_function;
+	char *read_function;
+
+	VALUE write_data;
+	VALUE write_header_data;
+	VALUE read_data;
+
+	struct curl_slist *curl_httpheader_slist;
+	struct curl_slist *curl_http200aliases_slist;
+	struct curl_slist *curl_hosts_slist;
+	struct curl_slist *curl_headers_slist;
 } rb_curl_easy;
 
 extern VALUE rb_cEasy;
