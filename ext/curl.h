@@ -24,6 +24,9 @@
 #define RB_DEFINE_M_PROTO_CONST(name, curl_proto_name) \
 	rb_define_const(rb_mProto, name, LONG2NUM(curl_proto_name))
 
+#define RB_DEFINE_M_ERROR_CONST(name, curl_error_name) \
+	rb_define_const(rb_mError, name, LONG2NUM(curl_error_name))
+
 extern VALUE rb_mCurl;
 
 void Init_curl();

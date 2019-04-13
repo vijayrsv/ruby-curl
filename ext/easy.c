@@ -2,9 +2,15 @@
 
 extern VALUE rb_mCurl;
 
-static VALUE id_call;
-
 VALUE rb_cEasy;
+
+static VALUE rb_curl_easy_strerror(VALUE self, VALUE errornum) {
+	const char *error_str;
+
+	error_str = curl_easy_strerror(NUM2LONG(errornum));
+
+	return rb_str_new2(error_str);
+}
 
 static inline struct curl_slist *rb_array_to_curl_slist(VALUE arr, struct curl_slist *slist) {
 	long arr_len;
@@ -31,10 +37,12 @@ static inline struct curl_slist *rb_array_to_curl_slist(VALUE arr, struct curl_s
 
 static inline VALUE curl_slist_to_rb_array(struct curl_slist *slist) {
 	VALUE arr = rb_ary_new();
+
 	while (slist) {
 		rb_ary_push(arr, rb_str_new_cstr(slist->data));
 		slist = slist->next;
 	}
+
 	return arr;
 }
 
@@ -69,8 +77,10 @@ static void rb_curl_zero_state(rb_curl_easy *rb_ch) {
 
 static VALUE rb_curl_easy_allocate(VALUE klass) {
 	rb_curl_easy *rb_ch;
+
 	rb_ch = ALLOC(rb_curl_easy);
 	rb_curl_zero_state(rb_ch);
+
 	return Data_Wrap_Struct(klass, rb_curl_mark, rb_curl_free, rb_ch);
 }
 
@@ -153,6 +163,7 @@ static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
 	}
 
 	rb_ch->self = self;
+
 	if (url != Qnil)
 		curl_easy_setopt(rb_ch->ch, CURLOPT_URL, StringValueCStr(url));
 
@@ -160,8 +171,9 @@ static VALUE rb_curl_easy_initialize(int argc, VALUE *argv, VALUE self) {
 }
 
 static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
+	CURLcode c_err_code;
 	rb_curl_easy *rb_ch;
-	VALUE ret_val = Qnil;
+	VALUE info_val = Qnil, ret_val = rb_ary_new();
 	long information = NUM2LONG(info);
 
 	char *s_var;
@@ -188,13 +200,10 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		case CURLINFO_SCHEME:
 #endif
 		case CURLINFO_EFFECTIVE_URL:
-		{
-			if (curl_easy_getinfo(rb_ch->ch, information, &s_var) == CURLE_OK) {
-				ret_val = rb_str_new2(s_var);
-			}
+			c_err_code = curl_easy_getinfo(rb_ch->ch, information, &s_var);
+			if (c_err_code == CURLE_OK)
+				info_val = rb_str_new2(s_var);
 			break;
-		}
-
 		/* pointer to a long */
 #if LIBCURL_VERSION_NUM >= 0x071500 /* Curl::Info constants (Available since 7.21.0) */
 		case CURLINFO_LOCAL_PORT:
@@ -219,13 +228,10 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		case CURLINFO_OS_ERRNO:
 		case CURLINFO_NUM_CONNECTS:
 		case CURLINFO_LASTSOCKET:
-		{
-			if (curl_easy_getinfo(rb_ch->ch, information, &l_var) == CURLE_OK) {
-				ret_val = INT2FIX(l_var);
-			}
+			c_err_code = curl_easy_getinfo(rb_ch->ch, information, &l_var);
+			if (c_err_code == CURLE_OK)
+				info_val = INT2FIX(l_var);
 			break;
-		}
-
 		/* pointer to a double */
 		case CURLINFO_TOTAL_TIME:
 		case CURLINFO_NAMELOOKUP_TIME:
@@ -239,43 +245,39 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		case CURLINFO_SPEED_DOWNLOAD:
 		case CURLINFO_CONTENT_LENGTH_DOWNLOAD:
 		case CURLINFO_CONTENT_LENGTH_UPLOAD:
-		{
-			if (curl_easy_getinfo(rb_ch->ch, information, &d_var) == CURLE_OK) {
-				ret_val = DBL2NUM(d_var);
-			}
+			c_err_code = curl_easy_getinfo(rb_ch->ch, information, &d_var);
+			if (c_err_code == CURLE_OK)
+				info_val = DBL2NUM(d_var);
 			break;
-		}
-
 		/*  pointer to a 'struct curl_certinfo *' */
 #if LIBCURL_VERSION_NUM >= 0x071301 /* Curl::Info constants (Available since 7.19.1) */
 		case CURLINFO_CERTINFO:
-		{
-			if (curl_easy_getinfo(rb_ch->ch, information, &curl_certinfo_chain) == CURLE_OK) {
-				ret_val = rb_curl_create_certinfo(curl_certinfo_chain);
-			}
+			c_err_code = curl_easy_getinfo(rb_ch->ch, information, &curl_certinfo_chain);
+			if (c_err_code == CURLE_OK)
+				info_val = rb_curl_create_certinfo(curl_certinfo_chain);
 			break;
-		}
 #endif
-
 		/* address of a 'struct curl_slist *' */
 		case CURLINFO_SSL_ENGINES:
 		case CURLINFO_COOKIELIST:
-		{
-			if (curl_easy_getinfo(rb_ch->ch, information, &curl_list_var) == CURLE_OK) {
-				ret_val = curl_slist_to_rb_array(curl_list_var);
+			c_err_code = curl_easy_getinfo(rb_ch->ch, information, &curl_list_var);
+			if (c_err_code == CURLE_OK) {
+				info_val = curl_slist_to_rb_array(curl_list_var);
 				curl_slist_free_all(curl_list_var);
 			}
 			break;
-		}
-
 		default:
 			rb_raise(rb_eTypeError, "Unsupported information.");
 	}
+	rb_ary_push(ret_val, LONG2NUM(c_err_code));
+	rb_ary_push(ret_val, info_val);
+
 	return ret_val;
 }
 
 
 static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
+	CURLcode c_err_code;
 	rb_curl_easy *rb_ch;
 	long option = NUM2LONG(opt);
 
@@ -373,7 +375,7 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_REDIR_PROTOCOLS:
 		case CURLOPT_SOCKS5_GSSAPI_NEC:
 #endif
-			curl_easy_setopt(rb_ch->ch, option, NUM2LONG(val));
+			c_err_code = curl_easy_setopt(rb_ch->ch, option, NUM2LONG(val));
 			break;
 		case CURLOPT_URL:
 #if LIBCURL_VERSION_NUM >= 0x071301 /* Available since 7.19.1 */
@@ -386,7 +388,7 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_CAINFO:
 		case CURLOPT_SSLCERTTYPE:
 		case CURLOPT_SSLKEYTYPE:
-			curl_easy_setopt(rb_ch->ch, option, StringValueCStr(val));
+			c_err_code = curl_easy_setopt(rb_ch->ch, option, StringValueCStr(val));
 			break;
 		case CURLOPT_POSTFIELDS:
 		case CURLOPT_USERAGENT:
@@ -433,76 +435,76 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 		case CURLOPT_SSLENGINE:
 		case CURLOPT_SSLKEY:
 		case CURLOPT_SSL_CIPHER_LIST:
-			curl_easy_setopt(rb_ch->ch, option, NIL_P(val) ? NULL : StringValueCStr(val));
+			c_err_code = curl_easy_setopt(rb_ch->ch, option, NIL_P(val) ? NULL : StringValueCStr(val));
 			break;
 		case CURLOPT_WRITEFUNCTION:
 			rb_ch->write_function = NIL_P(val) ? NULL : rb_normalized_str(val);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEFUNCTION, rb_curl_write);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEFUNCTION, rb_curl_write);
 			break;
 		case CURLOPT_WRITEDATA:
 			rb_ch->write_data = val;
-			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
 			break;
 		case CURLOPT_HEADERFUNCTION:
 			rb_ch->write_header_function = NIL_P(val) ? NULL : rb_normalized_str(val);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERFUNCTION, rb_curl_write_header);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERFUNCTION, rb_curl_write_header);
 			break;
 		case CURLOPT_HEADERDATA:
 			rb_ch->write_header_data = val;
-			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
 			break;
 		case CURLOPT_READFUNCTION:
 			rb_ch->read_function = NIL_P(val) ? NULL : rb_normalized_str(val);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
 			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
 			break;
 		case CURLOPT_READDATA:
 			rb_ch->read_data = val;
-			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
 			break;
 #if LIBCURL_VERSION_NUM >= 0x070f02 /* Available since 7.15.2 */
 		case CURLOPT_MAX_RECV_SPEED_LARGE:
 		case CURLOPT_MAX_SEND_SPEED_LARGE:
-			curl_easy_setopt(rb_ch->ch, option, (curl_off_t) NUM2LL(val));
+			c_err_code = curl_easy_setopt(rb_ch->ch, option, (curl_off_t) NUM2LL(val));
 			break;
 #endif
 		case CURLOPT_HTTP200ALIASES:
 			rb_ch->curl_http200aliases_slist = rb_array_to_curl_slist(val, rb_ch->curl_http200aliases_slist);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTP200ALIASES, rb_ch->curl_http200aliases_slist);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HTTP200ALIASES, rb_ch->curl_http200aliases_slist);
 			break;
 		case CURLOPT_HTTPHEADER:
 			rb_ch->curl_httpheader_slist = rb_array_to_curl_slist(val, rb_ch->curl_httpheader_slist);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_HTTPHEADER, rb_ch->curl_httpheader_slist);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HTTPHEADER, rb_ch->curl_httpheader_slist);
 			break;
 #if LIBCURL_VERSION_NUM >= 0x071503 /* Available since 7.21.3 */
 		case CURLOPT_RESOLVE:
 			rb_ch->curl_hosts_slist = rb_array_to_curl_slist(val, rb_ch->curl_hosts_slist);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_RESOLVE, rb_ch->curl_hosts_slist);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_RESOLVE, rb_ch->curl_hosts_slist);
 			break;
 #endif
 #if LIBCURL_VERSION_NUM >= 0x072500 /* Available since 7.37.0 */
 		case CURLOPT_PROXYHEADER:
 			rb_ch->curl_headers_slist = rb_array_to_curl_slist(val, rb_ch->curl_headers_slist);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_PROXYHEADER, rb_ch->curl_headers_slist);
+			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_PROXYHEADER, rb_ch->curl_headers_slist);
 			break;
 #endif
 		default:
 			rb_raise(rb_eTypeError, "Unsupported option.");
 	}
 
-	return Qtrue;
+	return LONG2NUM(c_err_code);
 }
 
 static VALUE rb_curl_easy_perform(VALUE self) {
+	CURLcode c_err_code;
 	rb_curl_easy *rb_ch;
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
-	curl_easy_perform(rb_ch->ch);
+	c_err_code = curl_easy_perform(rb_ch->ch);
 
-	//CURLE_OK ? self : raise_error
-	return self;
+	return LONG2NUM(c_err_code);
 }
 
 static VALUE rb_curl_easy_cleanup(VALUE self) {
@@ -510,8 +512,8 @@ static VALUE rb_curl_easy_cleanup(VALUE self) {
 
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 	curl_easy_cleanup(rb_ch->ch);
-	// CURLE_OK ? self : raise_error
-	return self;
+
+	return Qnil;
 }
 
 static VALUE rb_curl_easy_reset(VALUE self) {
@@ -520,15 +522,14 @@ static VALUE rb_curl_easy_reset(VALUE self) {
 	Data_Get_Struct(self, rb_curl_easy, rb_ch);
 	curl_easy_reset(rb_ch->ch);
 	rb_curl_zero_state(rb_ch);
-	// CURLE_OK ? self : raise_error
-	return self;
+
+	return Qnil;
 }
 
 void Init_easy() {
-	id_call = rb_intern("call");
-
 	rb_cEasy = rb_define_class_under(rb_mCurl, "Easy", rb_cObject);
 	rb_define_alloc_func(rb_cEasy, rb_curl_easy_allocate);
+	rb_define_singleton_method(rb_cEasy, "strerror", rb_curl_easy_strerror, 1);
 	rb_define_method(rb_cEasy, "initialize", rb_curl_easy_initialize, -1);
 	rb_define_method(rb_cEasy, "setopt", rb_curl_easy_setopt, 2);
 	rb_define_method(rb_cEasy, "getinfo", rb_curl_easy_getinfo, 1);
