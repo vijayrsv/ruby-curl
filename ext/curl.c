@@ -5,7 +5,7 @@ VALUE rb_mCurl;
 void Init_curl() {
 	VALUE rb_mOpt, rb_mInfo, rb_mProxy, rb_mAuth, rb_mProto, rb_mError;
 
-	rb_mCurl   = rb_define_module("Curl");
+	rb_mCurl = rb_define_module("Curl");
 	rb_mOpt = rb_define_module_under(rb_mCurl, "Opt");
 	rb_mInfo = rb_define_module_under(rb_mCurl, "Info");
 	rb_mProxy = rb_define_module_under(rb_mCurl, "Proxy");

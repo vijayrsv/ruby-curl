@@ -269,8 +269,8 @@ static VALUE rb_curl_easy_getinfo(VALUE self, VALUE info) {
 		default:
 			rb_raise(rb_eTypeError, "Unsupported information.");
 	}
-	rb_ary_push(ret_val, LONG2NUM(c_err_code));
 	rb_ary_push(ret_val, info_val);
+	rb_ary_push(ret_val, LONG2NUM(c_err_code));
 
 	return ret_val;
 }
