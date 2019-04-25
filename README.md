@@ -1,3 +1,6 @@
+[![Gem Version](https://badge.fury.io/rb/ruby-curl.svg)](https://badge.fury.io/rb/ruby-curl)
+
+
 # Introduction
 
 Ruby-curl aims to be a true libcurl binding for Ruby. Currently, ruby-curl offers full support for the HTTP protocol over libcurl’s easy interface. Just like libcurl, when using ruby-curl you init your easy-session and get a handle, which you use as input to the following interface functions you use.
