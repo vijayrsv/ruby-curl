@@ -1,4 +1,4 @@
-require 'ruby-curl/ruby-curl'
+require 'curl'
 require 'ruby-curl/version'
 
 module Curl
