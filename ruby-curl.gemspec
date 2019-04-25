@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version     = Curl::VERSION 
   spec.summary     = %q{}
   spec.description = %q{}
-  spec.authors     = ["vijayrsv"]
-  spec.email       = ["vijayrepomailzbox@gmail.com"]
+  spec.authors     = ["vijayrsv", "singhshivam"]
+  spec.email       = ["vijayrepomailzbox@gmail.com", "singhshivam.172@gmail.com"]
   spec.homepage    = "https://github.com/vijayrsv/ruby-curl"
   spec.license     = "MIT"
 	spec.required_ruby_version = ">= 1.9.3"
