@@ -58,6 +58,9 @@ void rb_curl_free(rb_curl_easy *rb_ch) {
 	curl_slist_free_all(rb_ch->curl_http200aliases_slist);
 	curl_slist_free_all(rb_ch->curl_hosts_slist);
 	curl_slist_free_all(rb_ch->curl_headers_slist);
+	free(rb_ch->write_function);
+	free(rb_ch->write_header_function);
+	free(rb_ch->read_function);
 	free(rb_ch);
 }
 
@@ -438,27 +441,39 @@ static VALUE rb_curl_easy_setopt(VALUE self, VALUE opt, VALUE val) {
 			c_err_code = curl_easy_setopt(rb_ch->ch, option, NIL_P(val) ? NULL : StringValueCStr(val));
 			break;
 		case CURLOPT_WRITEFUNCTION:
-			rb_ch->write_function = NIL_P(val) ? NULL : rb_normalized_str(val);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
-			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEFUNCTION, rb_curl_write);
+			if (NIL_P(val)) {
+				c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEFUNCTION, NULL);
+			} else {
+				rb_ch->write_function = strdup(rb_normalized_str(val));
+				curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
+				c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEFUNCTION, rb_curl_write);
+			}
 			break;
 		case CURLOPT_WRITEDATA:
 			rb_ch->write_data = val;
 			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_WRITEDATA, rb_ch);
 			break;
 		case CURLOPT_HEADERFUNCTION:
-			rb_ch->write_header_function = NIL_P(val) ? NULL : rb_normalized_str(val);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
-			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERFUNCTION, rb_curl_write_header);
+			if (NIL_P(val)) {
+				c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERFUNCTION, NULL);
+			} else {
+				rb_ch->write_header_function = strdup(rb_normalized_str(val));
+				curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
+				c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERFUNCTION, rb_curl_write_header);
+			}
 			break;
 		case CURLOPT_HEADERDATA:
 			rb_ch->write_header_data = val;
 			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_HEADERDATA, rb_ch);
 			break;
 		case CURLOPT_READFUNCTION:
-			rb_ch->read_function = NIL_P(val) ? NULL : rb_normalized_str(val);
-			curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
-			c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
+			if (NIL_P(val)) {
+				c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, NULL);
+			} else {
+				rb_ch->read_function = strdup(rb_normalized_str(val));
+				curl_easy_setopt(rb_ch->ch, CURLOPT_READDATA, rb_ch);
+				c_err_code = curl_easy_setopt(rb_ch->ch, CURLOPT_READFUNCTION, rb_curl_read);
+			}
 			break;
 		case CURLOPT_READDATA:
 			rb_ch->read_data = val;
