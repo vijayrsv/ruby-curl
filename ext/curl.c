@@ -3,10 +3,11 @@
 VALUE rb_mCurl;
 
 void Init_curl() {
-	VALUE rb_mOpt, rb_mInfo, rb_mProxy, rb_mAuth, rb_mProto, rb_mError;
+	VALUE rb_mOpt, rb_mMOpt, rb_mInfo, rb_mProxy, rb_mAuth, rb_mProto, rb_mError;
 
 	rb_mCurl = rb_define_module("Curl");
 	rb_mOpt = rb_define_module_under(rb_mCurl, "Opt");
+	rb_mMOpt = rb_define_module_under(rb_mCurl, "MOpt");
 	rb_mInfo = rb_define_module_under(rb_mCurl, "Info");
 	rb_mProxy = rb_define_module_under(rb_mCurl, "Proxy");
 	rb_mAuth = rb_define_module_under(rb_mCurl, "Auth");
@@ -222,6 +223,10 @@ void Init_curl() {
 	RB_DEFINE_M_OPT_CONST("PROXYHEADER", CURLOPT_PROXYHEADER);
 #endif
 
+	/* Curl::Opt constants */
+	RB_DEFINE_M_MOPT_CONST("MAXCONNECTS", CURLMOPT_MAXCONNECTS);
+	RB_DEFINE_M_MOPT_CONST("PIPELINING", CURLMOPT_PIPELINING);
+
 	/* Curl::Info constants */
 	RB_DEFINE_M_INFO_CONST("EFFECTIVE_URL", CURLINFO_EFFECTIVE_URL);
 	RB_DEFINE_M_INFO_CONST("FILETIME", CURLINFO_FILETIME);
@@ -391,4 +396,5 @@ void Init_curl() {
 	RB_DEFINE_M_ERROR_CONST("HTTP2_STREAM", CURLE_HTTP2_STREAM);
 
 	Init_easy();
+	Init_multi();
 }
