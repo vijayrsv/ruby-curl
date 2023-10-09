@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.email       = ["vijayrepomailzbox@gmail.com", "singhshivam.172@gmail.com"]
   spec.homepage    = "https://github.com/vijayrsv/ruby-curl"
   spec.license     = "MIT"
-	spec.required_ruby_version = ">= 1.9.3"
+  spec.required_ruby_version = ">= 2.7"
 
 	# Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
@@ -33,4 +33,8 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "rake", "~> 10.0"
+
+  spec.add_dependency "stringio", "~> 3.0", ">= 3.0.8"
+
+  spec.requirements << "libcurl, >= 7.28.0"
 end

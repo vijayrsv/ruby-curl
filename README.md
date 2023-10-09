@@ -10,9 +10,9 @@ Ruby-curl aims to be a true libcurl binding for Ruby. Currently, ruby-curl offer
 # Requirements
 
 ```
-Ruby 1.9.3 or higher
+Ruby 2.7 or higher
 
-Libcurl 7.19.0 or higher
+Libcurl 7.28.0 or higher
 ```
 
 

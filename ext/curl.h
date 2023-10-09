@@ -12,6 +12,9 @@
 #define RB_DEFINE_M_OPT_CONST(name, curl_opt_name) \
 	rb_define_const(rb_mOpt, name, LONG2NUM(curl_opt_name))
 
+#define RB_DEFINE_M_MOPT_CONST(name, curl_mopt_name) \
+	rb_define_const(rb_mMOpt, name, LONG2NUM(curl_mopt_name))
+
 #define RB_DEFINE_M_INFO_CONST(name, curl_info_name) \
 	rb_define_const(rb_mInfo, name, LONG2NUM(curl_info_name))
 
