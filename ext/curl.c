@@ -16,6 +16,8 @@ void Init_curl() {
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
+	rb_define_const(rb_mCurl, "LIBCURL_VERSION", rb_str_new_cstr(curl_version()));
+
 	/* Curl constants */
 	RB_DEFINE_M_CURL_CONST("HTTP_VERSION_NONE", CURL_HTTP_VERSION_NONE);
 	RB_DEFINE_M_CURL_CONST("HTTP_VERSION_1_0", CURL_HTTP_VERSION_1_0);
